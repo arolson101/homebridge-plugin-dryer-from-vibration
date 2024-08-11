@@ -1,19 +1,19 @@
 {
-  "name": "homebridge-plugin-name",
-  "displayName": "Plugin Name",
+  "name": "homebridge-plugin-dryer-from-vibration",
+  "displayName": "Dryer From Vibration",
   "type": "module",
   "version": "1.0.0",
   "private": true,
-  "description": "A short description about what your plugin does.",
-  "author": "Your Name",
+  "description": "A homebridge plugin to create a washing machine or dryer sensor from a vibration sensor.",
+  "author": "Andrew Olson",
   "license": "Apache-2.0",
-  "homepage": "https://github.com/USERNAME/GITHUB_PROJECT_NAME#readme",
+  "homepage": "https://github.com/arolson101/homebridge-plugin-dryer-from-vibration/README.md",
   "repository": {
     "type": "git",
-    "url": "https://github.com/USERNAME/GITHUB_PROJECT_NAME.git"
+    "url": "https://github.com/arolson101/homebridge-plugin-dryer-from-vibration.git"
   },
   "bugs": {
-    "url": "https://github.com/USERNAME/GITHUB_PROJECT_NAME/issues"
+    "url": "https://github.com/arolson101/homebridge-plugin-dryer-from-vibration/issues"
   },
   "keywords": [
     "homebridge-plugin"
