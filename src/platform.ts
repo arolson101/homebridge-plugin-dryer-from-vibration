@@ -1,7 +1,16 @@
 import type { API, Characteristic, DynamicPlatformPlugin, Logging, PlatformAccessory, PlatformConfig, Service } from 'homebridge';
 
-import { ExamplePlatformAccessory } from './platformAccessory.js';
+import { DryerFromVibrationAccessory } from './platformAccessory.js';
 import { PLATFORM_NAME, PLUGIN_NAME } from './settings.js';
+
+export type DeviceInfo = {
+  exampleUniqueId: string;
+  exampleDisplayName: string;
+}
+
+export type Context = {
+  device: DeviceInfo
+}
 
 /**
  * HomebridgePlatform
@@ -13,7 +22,7 @@ export class DryerFromVibrationPlatform implements DynamicPlatformPlugin {
   public readonly Characteristic: typeof Characteristic;
 
   // this is used to track restored cached accessories
-  public readonly accessories: PlatformAccessory[] = [];
+  public readonly accessories: PlatformAccessory<Context>[] = [];
 
   constructor(
     public readonly log: Logging,
@@ -40,7 +49,7 @@ export class DryerFromVibrationPlatform implements DynamicPlatformPlugin {
    * This function is invoked when homebridge restores cached accessories from disk at startup.
    * It should be used to set up event handlers for characteristics and update respective values.
    */
-  configureAccessory(accessory: PlatformAccessory) {
+  configureAccessory(accessory: PlatformAccessory<Context>) {
     this.log.info('Loading accessory from cache:', accessory.displayName);
 
     // add the restored accessory to the accessories cache, so we can track if it has already been registered
@@ -56,7 +65,7 @@ export class DryerFromVibrationPlatform implements DynamicPlatformPlugin {
     // EXAMPLE ONLY
     // A real plugin you would discover accessories from the local network, cloud services
     // or a user-defined array in the platform config.
-    const exampleDevices = [
+    const exampleDevices: DeviceInfo[] = [
       {
         exampleUniqueId: 'ABCD',
         exampleDisplayName: 'Bedroom',
@@ -88,7 +97,7 @@ export class DryerFromVibrationPlatform implements DynamicPlatformPlugin {
 
         // create the accessory handler for the restored accessory
         // this is imported from `platformAccessory.ts`
-        new ExamplePlatformAccessory(this, existingAccessory);
+        new DryerFromVibrationAccessory(this, existingAccessory);
 
         // it is possible to remove platform accessories at any time using `api.unregisterPlatformAccessories`, e.g.:
         // remove platform accessories when no longer present
@@ -99,7 +108,7 @@ export class DryerFromVibrationPlatform implements DynamicPlatformPlugin {
         this.log.info('Adding new accessory:', device.exampleDisplayName);
 
         // create a new accessory
-        const accessory = new this.api.platformAccessory(device.exampleDisplayName, uuid);
+        const accessory = new this.api.platformAccessory(device.exampleDisplayName, uuid) as PlatformAccessory<Context>;
 
         // store a copy of the device object in the `accessory.context`
         // the `context` property can be used to store any data about the accessory you may need
@@ -107,7 +116,7 @@ export class DryerFromVibrationPlatform implements DynamicPlatformPlugin {
 
         // create the accessory handler for the newly create accessory
         // this is imported from `platformAccessory.ts`
-        new ExamplePlatformAccessory(this, accessory);
+        new DryerFromVibrationAccessory(this, accessory);
 
         // link the accessory to your platform
         this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);

@@ -1,13 +1,13 @@
 import type { CharacteristicValue, PlatformAccessory, Service } from 'homebridge';
 
-import type { DryerFromVibrationPlatform } from './platform.js';
+import type { Context, DryerFromVibrationPlatform } from './platform.js';
 
 /**
  * Platform Accessory
  * An instance of this class is created for each accessory your platform registers
  * Each accessory may expose multiple services of different service types.
  */
-export class ExamplePlatformAccessory {
+export class DryerFromVibrationAccessory {
   private service: Service;
 
   /**
@@ -21,13 +21,13 @@ export class ExamplePlatformAccessory {
 
   constructor(
     private readonly platform: DryerFromVibrationPlatform,
-    private readonly accessory: PlatformAccessory,
+    private readonly accessory: PlatformAccessory<Context>,
   ) {
     // set accessory information
     this.accessory.getService(this.platform.Service.AccessoryInformation)!
-      .setCharacteristic(this.platform.Characteristic.Manufacturer, 'Default-Manufacturer')
-      .setCharacteristic(this.platform.Characteristic.Model, 'Default-Model')
-      .setCharacteristic(this.platform.Characteristic.SerialNumber, 'Default-Serial');
+      .setCharacteristic(this.platform.Characteristic.Manufacturer, 'Dryer from Vibration Manufacturer')
+      .setCharacteristic(this.platform.Characteristic.Model, 'Dryer from Vibration Model')
+      .setCharacteristic(this.platform.Characteristic.SerialNumber, '123456789');
 
     // get the LightBulb service if it exists, otherwise create a new LightBulb service
     // you can create multiple services for each accessory
