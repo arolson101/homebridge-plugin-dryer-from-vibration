@@ -5,6 +5,7 @@ import type {
 } from 'homebridge';
 
 import type { DryerFromVibrationPlatform } from './platform.js';
+import timestring from 'timestring';
 
 /**
  * Platform Accessory
@@ -18,6 +19,7 @@ export class DryerFromVibrationAccessory {
   private events: number[] = [];
   private timeout?: NodeJS.Timeout;
 
+  private isOn = false;
   private isOccupied = false;
 
   constructor(
@@ -78,7 +80,11 @@ export class DryerFromVibrationAccessory {
       .getCharacteristic(this.platform.Characteristic.OccupancyDetected)
       .onGet(this.getOccupied.bind(this)); // GET - bind to the `getOccupied` method below
 
-    this.occupancyService.setCharacteristic(
+    this.lightbuilbService.updateCharacteristic(
+      this.platform.Characteristic.On,
+      false,
+    );
+    this.occupancyService.updateCharacteristic(
       this.platform.Characteristic.OccupancyDetected,
       this.platform.Characteristic.OccupancyDetected.OCCUPANCY_NOT_DETECTED,
     );
@@ -88,62 +94,40 @@ export class DryerFromVibrationAccessory {
    * Handle "SET" requests from HomeKit
    * These are sent when the user changes the state of an accessory, for example, turning on a Light bulb.
    */
-  async setOn(_value: CharacteristicValue) {
-    if (_value) {
-      this.platform.log(this.platform.config.name + ' switch turned on');
-      setTimeout(() => {
-        this.lightbuilbService.updateCharacteristic(
-          this.platform.Characteristic.On,
-          false,
-        );
-      }, 0);
-      this.events.push(Date.now());
-      this.updateEvents();
-    }
-  }
+  async setOn(value: CharacteristicValue) {
+    this.platform.log(
+      this.platform.config.name + ' switch turned ' + value ? 'on' : 'off',
+    );
+    this.isOn = value as boolean;
 
-  private updateEvents() {
-    const now = Date.now();
-    const cutoff = now - this.platform.config.onTimeSpanSec * 1000;
-    this.events = this.events.filter((event) => event >= cutoff);
-
-    const numberOfEvents = this.platform.config.numberOfEvents;
-    if (this.events.length > numberOfEvents) {
-      this.platform.log('setting occupancy sensor to OCCUPANCY_DETECTED');
-      this.isOccupied = true;
-      this.occupancyService.updateCharacteristic(
-        this.platform.Characteristic.OccupancyDetected,
-        this.platform.Characteristic.OccupancyDetected.OCCUPANCY_DETECTED,
-      );
-    }
-    if (this.isOccupied) {
-      const offTimeSpanSec = this.platform.config.offTimeSpanSec;
+    if (this.isOn) {
+      if (!this.timeout) {
+        const ms = timestring(this.platform.config.minimumTime, 'ms');
+        this.timeout = setTimeout(this.onTimeout.bind(this), ms);
+      }
+    } else {
       if (this.timeout) {
-        this.platform.log.debug(
-          'resetting timer to turn occupancy off after ' +
-            offTimeSpanSec +
-            ' sec',
-        );
         clearTimeout(this.timeout);
-      } else {
-        this.platform.log.debug(
-          'setting timer to turn occupancy off after ' + offTimeSpanSec + ' sec',
+        this.timeout = undefined;
+      }
+
+      if (this.isOccupied) {
+        this.isOccupied = false;
+        this.occupancyService.updateCharacteristic(
+          this.platform.Characteristic.OccupancyDetected,
+          this.platform.Characteristic.OccupancyDetected.OCCUPANCY_NOT_DETECTED,
         );
       }
-      this.timeout = setTimeout(
-        this.onTimeout.bind(this),
-        this.platform.config.offTimeSpanSec * 1000,
-      );
     }
   }
 
   private onTimeout() {
+    this.platform.log('setting occupancy sensor to OCCUPANCY_DETECTED');
     this.timeout = undefined;
-    this.platform.log('setting occupancy sensor to OCCUPANCY_NOT_DETECTED');
-    this.isOccupied = false;
+    this.isOccupied = true;
     this.occupancyService.updateCharacteristic(
       this.platform.Characteristic.OccupancyDetected,
-      this.platform.Characteristic.OccupancyDetected.OCCUPANCY_NOT_DETECTED,
+      this.platform.Characteristic.OccupancyDetected.OCCUPANCY_DETECTED,
     );
   }
 
@@ -161,7 +145,7 @@ export class DryerFromVibrationAccessory {
    * this.service.updateCharacteristic(this.platform.Characteristic.On, true)
    */
   async getOn(): Promise<CharacteristicValue> {
-    const isOn = false;
+    const isOn = this.isOn;
 
     this.platform.log.debug('Get Characteristic On ->', isOn);
 

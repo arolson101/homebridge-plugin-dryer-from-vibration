@@ -11,23 +11,11 @@
         "required": true,
         "default": "Dryer Sensor"
       },
-      "numberOfEvents": {
-        "title": "Number of Events (N)",
-        "type": "number",
+      "minimumTime": {
+        "title": "Minimum Time",
+        "type": "string",
         "required": true,
-        "default": "4"
-      },
-      "onTimeSpanSec": {
-        "title": "Trigger On after N events within timespan (s)",
-        "type": "number",
-        "required": true,
-        "default": "300"
-      },
-      "offTimeSpanSec": {
-        "title": "Trigger Off after no events for timespan (s)",
-        "type": "number",
-        "required": true,
-        "default": "300"
+        "default": "5m"
       }
     }
   }

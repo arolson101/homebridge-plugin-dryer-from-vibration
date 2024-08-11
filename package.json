@@ -34,6 +34,7 @@
     "@eslint/js": "^9.9.0",
     "@types/eslint__js": "^8.42.3",
     "@types/node": "^22.2.0",
+    "@types/timestring": "^6.0.5",
     "eslint": "^9.9.0",
     "homebridge": "^2.0.0-beta.0",
     "nodemon": "^3.1.4",
@@ -41,5 +42,8 @@
     "ts-node": "^10.9.2",
     "typescript": "^5.5.4",
     "typescript-eslint": "^8.0.1"
+  },
+  "dependencies": {
+    "timestring": "^7.0.0"
   }
 }
