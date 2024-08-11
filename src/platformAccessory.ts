@@ -61,11 +61,13 @@ export class DryerFromVibrationAccessory {
      */
 
     // Example: add two "motion sensor" services to the accessory
-    const motionSensorOneService = this.accessory.getService('Motion Sensor One Name')
-      || this.accessory.addService(this.platform.Service.MotionSensor, 'Motion Sensor One Name', 'YourUniqueIdentifier-1');
+    const motionSensorOneName = 'Motion Sensor One Name';
+    const motionSensorOneService = this.accessory.getService(motionSensorOneName)
+      || this.accessory.addService(this.platform.Service.MotionSensor, motionSensorOneName, 'YourUniqueIdentifier-1');
 
-    const motionSensorTwoService = this.accessory.getService('Motion Sensor Two Name')
-      || this.accessory.addService(this.platform.Service.MotionSensor, 'Motion Sensor Two Name', 'YourUniqueIdentifier-2');
+    const motionSensorTwoName = 'Motion Sensor Two Name';
+    const motionSensorTwoService = this.accessory.getService(motionSensorTwoName)
+      || this.accessory.addService(this.platform.Service.MotionSensor, motionSensorTwoName, 'YourUniqueIdentifier-2');
 
     /**
      * Updating characteristics values asynchronously.
