@@ -21,7 +21,6 @@ export default tseslint.config(
       'object-curly-spacing': ['error', 'always'],
       'no-use-before-define': 'off',
       '@typescript-eslint/no-use-before-define': ['error', { 'classes': false, 'enums': false }],
-      '@typescript-eslint/no-unused-vars': ['error', { 'caughtErrors': 'none' }],
     },
   },
   {

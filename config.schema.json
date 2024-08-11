@@ -1,7 +1,7 @@
 {
-  "pluginAlias": "DryerFromVibrationPlugin",
+  "pluginAlias": "DryerFromVibration",
   "pluginType": "platform",
-  "singular": true,
+  "singular": false,
   "schema": {
     "type": "object",
     "properties": {
@@ -10,6 +10,24 @@
         "type": "string",
         "required": true,
         "default": "Dryer Sensor"
+      },
+      "numberOfEvents": {
+        "title": "Number of Events (N)",
+        "type": "number",
+        "required": true,
+        "default": "4"
+      },
+      "onTimeSpanSec": {
+        "title": "Trigger On after N events within timespan (s)",
+        "type": "number",
+        "required": true,
+        "default": "300"
+      },
+      "offTimeSpanSec": {
+        "title": "Trigger Off after no events for timespan (s)",
+        "type": "number",
+        "required": true,
+        "default": "300"
       }
     }
   }
