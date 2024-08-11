@@ -26,21 +26,20 @@ export class DryerFromVibrationAccessory {
     private readonly platform: DryerFromVibrationPlatform,
     private readonly accessory: PlatformAccessory,
   ) {
+    const name = this.platform.config.name ?? 'accessory';
+
     // set accessory information
     this.accessory
       .getService(this.platform.Service.AccessoryInformation)!
       .setCharacteristic(
         this.platform.Characteristic.Manufacturer,
-        'Dryer from Vibration Manufacturer',
+        'Homebridge',
       )
       .setCharacteristic(
         this.platform.Characteristic.Model,
-        'Dryer from Vibration Model',
+        'Dryer from Vibration Plugin',
       )
-      .setCharacteristic(
-        this.platform.Characteristic.SerialNumber,
-        '123456789',
-      );
+      .setCharacteristic(this.platform.Characteristic.SerialNumber, name);
 
     // get the LightBulb service if it exists, otherwise create a new LightBulb service
     // you can create multiple services for each accessory
@@ -52,7 +51,7 @@ export class DryerFromVibrationAccessory {
     // in this example we are using the name we stored in the `accessory.context` in the `discoverDevices` method.
     this.lightbuilbService.setCharacteristic(
       this.platform.Characteristic.Name,
-      this.platform.config.name + ' switch',
+      name + ' switch',
     );
 
     this.occupancyService =
@@ -63,7 +62,7 @@ export class DryerFromVibrationAccessory {
     // in this example we are using the name we stored in the `accessory.context` in the `discoverDevices` method.
     this.occupancyService.setCharacteristic(
       this.platform.Characteristic.Name,
-      this.platform.config.name + ' sensor',
+      name + ' sensor',
     );
 
     // each service must implement at-minimum the "required characteristics" for the given service type
