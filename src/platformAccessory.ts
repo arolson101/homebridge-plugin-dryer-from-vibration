@@ -4,7 +4,7 @@ import type {
   Service,
 } from 'homebridge';
 
-import type { DryerFromVibrationPlatform } from './platform.js';
+import type { Context, DryerFromVibrationPlatform } from './platform.js';
 import timestring from 'timestring';
 
 /**
@@ -24,9 +24,9 @@ export class DryerFromVibrationAccessory {
 
   constructor(
     private readonly platform: DryerFromVibrationPlatform,
-    private readonly accessory: PlatformAccessory,
+    private readonly accessory: PlatformAccessory<Context>,
   ) {
-    const name = this.platform.config.name ?? 'accessory';
+    const name = this.accessory.context.name;
 
     // set accessory information
     this.accessory
@@ -35,11 +35,8 @@ export class DryerFromVibrationAccessory {
         this.platform.Characteristic.Manufacturer,
         'Homebridge',
       )
-      .setCharacteristic(
-        this.platform.Characteristic.Model,
-        'Dryer from Vibration Plugin',
-      )
-      .setCharacteristic(this.platform.Characteristic.SerialNumber, name);
+      .setCharacteristic(this.platform.Characteristic.Model, name)
+      .setCharacteristic(this.platform.Characteristic.SerialNumber, '0001');
 
     // get the LightBulb service if it exists, otherwise create a new LightBulb service
     // you can create multiple services for each accessory
@@ -95,13 +92,13 @@ export class DryerFromVibrationAccessory {
    */
   async setOn(value: CharacteristicValue) {
     this.platform.log(
-      this.platform.config.name + ' switch turned ' + value ? 'on' : 'off',
+      this.accessory.context.name + ' switch turned ' + value ? 'on' : 'off',
     );
     this.isOn = value as boolean;
 
     if (this.isOn) {
       if (!this.timeout) {
-        const ms = timestring(this.platform.config.minimumTime, 'ms');
+        const ms = timestring(this.accessory.context.minimumTime, 'ms');
         this.timeout = setTimeout(this.onTimeout.bind(this), ms);
       }
     } else {

@@ -11,6 +11,11 @@ import type {
 import { DryerFromVibrationAccessory } from './platformAccessory.js';
 import { PLATFORM_NAME, PLUGIN_NAME } from './settings.js';
 
+export interface Context {
+  name: string;
+  minimumTime: string;
+}
+
 /**
  * HomebridgePlatform
  * This class is the main constructor for your plugin, this is where you should
@@ -21,7 +26,7 @@ export class DryerFromVibrationPlatform implements DynamicPlatformPlugin {
   public readonly Characteristic: typeof Characteristic;
 
   // this is used to track restored cached accessories
-  public readonly accessories: PlatformAccessory[] = [];
+  public readonly accessories: PlatformAccessory<Context>[] = [];
 
   constructor(
     public readonly log: Logging,
@@ -48,7 +53,7 @@ export class DryerFromVibrationPlatform implements DynamicPlatformPlugin {
    * This function is invoked when homebridge restores cached accessories from disk at startup.
    * It should be used to set up event handlers for characteristics and update respective values.
    */
-  configureAccessory(accessory: PlatformAccessory) {
+  configureAccessory(accessory: PlatformAccessory<Context>) {
     this.log.info('Loading accessory from cache:', accessory.displayName);
 
     // add the restored accessory to the accessories cache, so we can track if it has already been registered
@@ -61,56 +66,64 @@ export class DryerFromVibrationPlatform implements DynamicPlatformPlugin {
    * must not be registered again to prevent "duplicate UUID" errors.
    */
   discoverDevices() {
-    const name = this.config.name ?? 'DryerFromVibration';
+    for (const appliance of this.config.appliances) {
+      const name = appliance.name;
 
-    // generate a unique id for the accessory this should be generated from
-    // something globally unique, but constant, for example, the device serial
-    // number or MAC address
-    const uuid = this.api.hap.uuid.generate(name);
+      const context: Context = {
+        name,
+        minimumTime: appliance.minimumTime,
+      };
 
-    // see if an accessory with the same uuid has already been registered and restored from
-    // the cached devices we stored in the `configureAccessory` method above
-    const existingAccessory = this.accessories.find(
-      (accessory) => accessory.UUID === uuid,
-    );
+      // generate a unique id for the accessory this should be generated from
+      // something globally unique, but constant, for example, the device serial
+      // number or MAC address
+      const uuid = this.api.hap.uuid.generate(name);
 
-    if (existingAccessory) {
-      // the accessory already exists
-      this.log.info(
-        'Restoring existing accessory from cache:',
-        existingAccessory.displayName,
+      // see if an accessory with the same uuid has already been registered and restored from
+      // the cached devices we stored in the `configureAccessory` method above
+      const existingAccessory = this.accessories.find(
+        (accessory) => accessory.UUID === uuid,
       );
 
-      // if you need to update the accessory.context then you should run `api.updatePlatformAccessories`. e.g.:
-      // existingAccessory.context.device = device;
-      // this.api.updatePlatformAccessories([existingAccessory]);
+      if (existingAccessory) {
+        // the accessory already exists
+        this.log.info(
+          'Restoring existing accessory from cache:',
+          existingAccessory.displayName,
+        );
 
-      // create the accessory handler for the restored accessory
-      // this is imported from `platformAccessory.ts`
-      new DryerFromVibrationAccessory(this, existingAccessory);
+        // if you need to update the accessory.context then you should run `api.updatePlatformAccessories`. e.g.:
+        existingAccessory.context = context;
+        this.api.updatePlatformAccessories([existingAccessory]);
 
-      // it is possible to remove platform accessories at any time using `api.unregisterPlatformAccessories`, e.g.:
-      // remove platform accessories when no longer present
-      // this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [existingAccessory]);
-      // this.log.info('Removing existing accessory from cache:', existingAccessory.displayName);
-    } else {
-      // the accessory does not yet exist, so we need to create it
-      this.log.info('Adding new accessory:', name);
+        // create the accessory handler for the restored accessory
+        // this is imported from `platformAccessory.ts`
+        new DryerFromVibrationAccessory(this, existingAccessory);
 
-      // create a new accessory
-      const accessory = new this.api.platformAccessory(
-        name,
-        uuid,
-      ) as PlatformAccessory;
+        // it is possible to remove platform accessories at any time using `api.unregisterPlatformAccessories`, e.g.:
+        // remove platform accessories when no longer present
+        // this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [existingAccessory]);
+        // this.log.info('Removing existing accessory from cache:', existingAccessory.displayName);
+      } else {
+        // the accessory does not yet exist, so we need to create it
+        this.log.info('Adding new accessory:', name);
 
-      // create the accessory handler for the newly create accessory
-      // this is imported from `platformAccessory.ts`
-      new DryerFromVibrationAccessory(this, accessory);
+        // create a new accessory
+        const accessory = new this.api.platformAccessory(
+          name,
+          uuid,
+        ) as PlatformAccessory<Context>;
+        accessory.context = context;
 
-      // link the accessory to your platform
-      this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [
-        accessory,
-      ]);
+        // create the accessory handler for the newly create accessory
+        // this is imported from `platformAccessory.ts`
+        new DryerFromVibrationAccessory(this, accessory);
+
+        // link the accessory to your platform
+        this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [
+          accessory,
+        ]);
+      }
     }
   }
 }

@@ -1,21 +1,33 @@
 {
   "pluginAlias": "DryerFromVibration",
   "pluginType": "platform",
+  "footerDisplay": "Look at setup documentation [here](https://github.com/arolson101/homebridge-plugin-dryer-from-vibration).<br>Time format documentation is [here](https://github.com/mike182uk/timestring#readme).",
   "singular": false,
   "schema": {
+    "title": "Config",
     "type": "object",
     "properties": {
-      "name": {
-        "title": "Name",
-        "type": "string",
-        "required": true,
-        "default": "Dryer Sensor"
-      },
-      "minimumTime": {
-        "title": "Minimum Time",
-        "type": "string",
-        "required": true,
-        "default": "5m"
+      "appliances": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "title": "Name",
+              "type": "string",
+              "required": true,
+              "description": "Will be used to name the sensor/switch.",
+              "default": "Washing Machine"
+            },
+            "minimumTime": {
+              "title": "Minimum Time",
+              "description": "The minimum amount of time the vibration sensor must be on before the presence sensor triggers.",
+              "type": "string",
+              "required": true,
+              "default": "5m"
+            }
+          }
+        }
       }
     }
   }
