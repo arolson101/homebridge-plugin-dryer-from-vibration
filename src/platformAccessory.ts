@@ -13,7 +13,7 @@ import timestring from 'timestring';
  * Each accessory may expose multiple services of different service types.
  */
 export class DryerFromVibrationAccessory {
-  private lightbuilbService: Service;
+  private switchService: Service;
   private occupancyService: Service;
 
   private events: number[] = [];
@@ -38,15 +38,15 @@ export class DryerFromVibrationAccessory {
       .setCharacteristic(this.platform.Characteristic.Model, name)
       .setCharacteristic(this.platform.Characteristic.SerialNumber, '0001');
 
-    // get the LightBulb service if it exists, otherwise create a new LightBulb service
+    // get the Switch service if it exists, otherwise create a new Switch service
     // you can create multiple services for each accessory
-    this.lightbuilbService =
-      this.accessory.getService(this.platform.Service.Lightbulb) || //
-      this.accessory.addService(this.platform.Service.Lightbulb);
+    this.switchService =
+      this.accessory.getService(this.platform.Service.Switch) || //
+      this.accessory.addService(this.platform.Service.Switch);
 
     // set the service name, this is what is displayed as the default name on the Home app
     // in this example we are using the name we stored in the `accessory.context` in the `discoverDevices` method.
-    this.lightbuilbService.setCharacteristic(
+    this.switchService.setCharacteristic(
       this.platform.Characteristic.Name,
       name + ' switch',
     );
@@ -66,7 +66,7 @@ export class DryerFromVibrationAccessory {
     // see https://developers.homebridge.io/#/service/Lightbulb
 
     // register handlers for the On/Off Characteristic
-    this.lightbuilbService
+    this.switchService
       .getCharacteristic(this.platform.Characteristic.On)
       .onSet(this.setOn.bind(this)) // SET - bind to the `setOn` method below
       .onGet(this.getOn.bind(this)); // GET - bind to the `getOn` method below
@@ -76,7 +76,7 @@ export class DryerFromVibrationAccessory {
       .getCharacteristic(this.platform.Characteristic.OccupancyDetected)
       .onGet(this.getOccupied.bind(this)); // GET - bind to the `getOccupied` method below
 
-    this.lightbuilbService.updateCharacteristic(
+    this.switchService.updateCharacteristic(
       this.platform.Characteristic.On,
       false,
     );
